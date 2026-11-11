@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday ❤️</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#170020,#59004f,#c21875);
+ color:white;
+ text-align:center;
+}
+
+.card{
+ width:90%;
+ max-width:480px;
+ padding:30px 20px;
+ border-radius:25px;
+ background:rgba(255,255,255,.12);
+ backdrop-filter:blur(12px);
+ border:1px solid #ffffff55;
+ box-shadow:0 0 35px #ff1493;
+ z-index:2;
+ animation:appear 1.5s ease;
+}
+
+@keyframes appear{
+ from{transform:scale(.5);opacity:0}
+ to{transform:scale(1);opacity:1}
+}
+
+h1{
+ font-size:clamp(30px,8vw,45px);
+ color:#ffe66d;
+ text-shadow:0 0 20px #ff1493;
+ margin:15px 0;
+}
+
+.name{
+ font-size:clamp(30px,9vw,45px);
+ color:#ffb6d9;
+ margin:15px 0;
+ text-shadow:0 0 15px pink;
+}
+
+.cake{
+ font-size:85px;
+ animation:bounce 1.5s infinite;
+}
+
+@keyframes bounce{
+ 50%{transform:translateY(-15px)}
+}
+
+p{
+ font-size:16px;
+ line-height:1.8;
+ margin:20px 0;
+}
+
+button{
+ border:none;
+ border-radius:30px;
+ padding:13px 22px;
+ margin:8px;
+ background:linear-gradient(45deg,#ff1493,#ff9800);
+ color:white;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer;
+ box-shadow:0 0 15px #ff1493;
+}
+
+button:hover{transform:scale(1.07)}
+
+#surprise{
+ display:none;
+ color:#ffe66d;
+ font-size:19px;
+ line-height:1.8;
+ margin-top:20px;
+ animation:appear 1s;
+}
+
+.confetti{
+ position:fixed;
+ top:-15px;
+ width:10px;
+ height:15px;
+ pointer-events:none;
+ animation:fall 4s linear forwards;
+ z-index:5;
+}
+
+@keyframes fall{
+ to{transform:translateY(110vh) rotate(900deg);opacity:0}
+}
+
+.heart{
+ position:fixed;
+ bottom:-40px;
+ animation:float 8s linear forwards;
+ pointer-events:none;
+}
+
+@keyframes float{
+ to{transform:translateY(-110vh) rotate(360deg);opacity:0}
+}
+
+canvas{
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ z-index:1;
+}
+
+@media(max-width:480px){
+ .card{padding:25px 15px}
+ p{font-size:15px}
+ .cake{font-size:70px}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="card">
+
+ <div>✨ 🕯️ ✨</div>
+
+ <div class="cake">🎂</div>
+
+ <h1>Happy Birthday!</h1>
+
+ <div class="name" id="name"></div>
+
+ <p>
+  Wishing you a day full of happiness,
+  laughter, love and beautiful memories. ❤️
+  <br>
+  May all your dreams come true!
+  <br><br>
+  You deserve the best in life! 💖
+ </p>
+
+ <button onclick="showSurprise()">
+  🎁 Open Your Surprise
+ </button>
+
+ <button onclick="toggleMusic()" id="musicBtn">
+  🎵 Play Music
+ </button>
+
+ <div id="musicStatus">Tap to play birthday music</div>
+
+ <div id="surprise">
+  💖 A Special Message For You 💖
+  <br><br>
+  You are amazing and special!
+  May your life be filled with endless
+  smiles, love and success.
+  <br><br>
+  Keep shining! 🌟
+  <br>
+  Love you! ❤️🥳
+ </div>
+
+</div>
+
+<audio id="music" loop>
+ <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7833227d8a.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+// CHANGE THE NAME HERE
+const birthdayName="Birthday Star";
+
+let i=0;
+function typeName(){
+ if(i< birthdayName.length){
+  document.getElementById("name").textContent+=birthdayName[i];
+  i++;
+  setTimeout(typeName,150);
+ }
+}
+typeName();
+
+// CONFETTI
+const colors=["#ff1493","#ffe66d","#00e5ff","#76ff03","#ffffff","#ff9800"];
+
+function createConfetti(){
+ let c=document.createElement("div");
+ c.className="confetti";
+ c.style.left=Math.random()*100+"vw";
+ c.style.background=colors[Math.floor(Math.random()*colors.length)];
+ c.style.animationDuration=(Math.random()*3+2)+"s";
+ document.body.appendChild(c);
+ setTimeout(()=>c.remove(),5000);
+}
+setInterval(createConfetti,100);
+
+// FLOATING HEARTS
+function createHeart(){
+ let h=document.createElement("div");
+ h.className="heart";
+ h.innerHTML=["❤️","💖","💕","💗","💝"][Math.floor(Math.random()*5)];
+ h.style.left=Math.random()*100+"vw";
+ h.style.fontSize=(Math.random()*25+18)+"px";
+ document.body.appendChild(h);
+ setTimeout(()=>h.remove(),8000);
+}
+setInterval(createHeart,700);
+
+// SURPRISE BUTTON
+function showSurprise(){
+ document.getElementById("surprise").style.display="block";
+ for(let j=0;j<100;j++){
+  setTimeout(createConfetti,j*15);
+ }
+ launchFirework();
+}
+
+// MUSIC
+const music=document.getElementById("music");
+
+async function toggleMusic(){
+ const btn=document.getElementById("musicBtn");
+ const status=document.getElementById("musicStatus");
+
+ if(music.paused){
+  try{
+   await music.play();
+   btn.textContent="⏸ Pause Music";
+   status.textContent="🎶 Music is playing!";
+  }catch(e){
+   status.textContent="Music unavailable. Check internet.";
+  }
+ }else{
+  music.pause();
+  btn.textContent="🎵 Play Music";
+  status.textContent="Music paused";
+ }
+}
+
+// FIREWORKS
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+ canvas.width=innerWidth;
+ canvas.height=innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+let particles=[];
+
+function launchFirework(){
+ let x=Math.random()*canvas.width;
+ let y=Math.random()*canvas.height*.65;
+
+ for(let j=0;j<60;j++){
+  let angle=Math.random()*Math.PI*2;
+  let speed=Math.random()*4+1;
+
+  particles.push({
+   x,y,
+   vx:Math.cos(angle)*speed,
+   vy:Math.sin(angle)*speed,
+   life:90,
+   color:colors[Math.floor(Math.random()*colors.length)]
+  });
+ }
+}
+
+function animate(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ for(let i=particles.length-1;i>=0;i--){
+  let p=particles[i];
+  p.x+=p.vx;
+  p.y+=p.vy;
+  p.vy+=.025;
+  p.life--;
+
+  ctx.globalAlpha=Math.max(0,p.life/90);
+  ctx.fillStyle=p.color;
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,3,0,Math.PI*2);
+  ctx.fill();
+
+  if(p.life<=0)particles.splice(i,1);
+ }
+
+ ctx.globalAlpha=1;
+ requestAnimationFrame(animate);
+}
+
+animate();
+setInterval(launchFirework,1800);
+
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday ❤️</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#170020,#59004f,#c21875);
+ color:white;
+ text-align:center;
+}
+
+.card{
+ width:90%;
+ max-width:480px;
+ padding:30px 20px;
+ border-radius:25px;
+ background:rgba(255,255,255,.12);
+ backdrop-filter:blur(12px);
+ border:1px solid #ffffff55;
+ box-shadow:0 0 35px #ff1493;
+ z-index:2;
+ animation:appear 1.5s ease;
+}
+
+@keyframes appear{
+ from{transform:scale(.5);opacity:0}
+ to{transform:scale(1);opacity:1}
+}
+
+h1{
+ font-size:clamp(30px,8vw,45px);
+ color:#ffe66d;
+ text-shadow:0 0 20px #ff1493;
+ margin:15px 0;
+}
+
+.name{
+ font-size:clamp(30px,9vw,45px);
+ color:#ffb6d9;
+ margin:15px 0;
+ text-shadow:0 0 15px pink;
+}
+
+.cake{
+ font-size:85px;
+ animation:bounce 1.5s infinite;
+}
+
+@keyframes bounce{
+ 50%{transform:translateY(-15px)}
+}
+
+p{
+ font-size:16px;
+ line-height:1.8;
+ margin:20px 0;
+}
+
+button{
+ border:none;
+ border-radius:30px;
+ padding:13px 22px;
+ margin:8px;
+ background:linear-gradient(45deg,#ff1493,#ff9800);
+ color:white;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer;
+ box-shadow:0 0 15px #ff1493;
+}
+
+button:hover{transform:scale(1.07)}
+
+#surprise{
+ display:none;
+ color:#ffe66d;
+ font-size:19px;
+ line-height:1.8;
+ margin-top:20px;
+ animation:appear 1s;
+}
+
+.confetti{
+ position:fixed;
+ top:-15px;
+ width:10px;
+ height:15px;
+ pointer-events:none;
+ animation:fall 4s linear forwards;
+ z-index:5;
+}
+
+@keyframes fall{
+ to{transform:translateY(110vh) rotate(900deg);opacity:0}
+}
+
+.heart{
+ position:fixed;
+ bottom:-40px;
+ animation:float 8s linear forwards;
+ pointer-events:none;
+}
+
+@keyframes float{
+ to{transform:translateY(-110vh) rotate(360deg);opacity:0}
+}
+
+canvas{
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ z-index:1;
+}
+
+@media(max-width:480px){
+ .card{padding:25px 15px}
+ p{font-size:15px}
+ .cake{font-size:70px}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<div class="card">
+
+ <div>✨ 🕯️ ✨</div>
+
+ <div class="cake">🎂</div>
+
+ <h1>Happy Birthday!</h1>
+
+ <div class="name" id="name"></div>
+
+ <p>
+  Wishing you a day full of happiness,
+  laughter, love and beautiful memories. ❤️
+  <br>
+  May all your dreams come true!
+  <br><br>
+  You deserve the best in life! 💖
+ </p>
+
+ <button onclick="showSurprise()">
+  🎁 Open Your Surprise
+ </button>
+
+ <button onclick="toggleMusic()" id="musicBtn">
+  🎵 Play Music
+ </button>
+
+ <div id="musicStatus">Tap to play birthday music</div>
+
+ <div id="surprise">
+  💖 A Special Message For You 💖
+  <br><br>
+  You are amazing and special!
+  May your life be filled with endless
+  smiles, love and success.
+  <br><br>
+  Keep shining! 🌟
+  <br>
+  Love you! ❤️🥳
+ </div>
+
+</div>
+
+<audio id="music" loop>
+ <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7833227d8a.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+// CHANGE THE NAME HERE
+const birthdayName="Navya";
+
+let i=0;
+function typeName(){
+ if(i< birthdayName.length){
+  document.getElementById("name").textContent+=birthdayName[i];
+  i++;
+  setTimeout(typeName,150);
+ }
+}
+typeName();
+
+// CONFETTI
+const colors=["#ff1493","#ffe66d","#00e5ff","#76ff03","#ffffff","#ff9800"];
+
+function createConfetti(){
+ let c=document.createElement("div");
+ c.className="confetti";
+ c.style.left=Math.random()*100+"vw";
+ c.style.background=colors[Math.floor(Math.random()*colors.length)];
+ c.style.animationDuration=(Math.random()*3+2)+"s";
+ document.body.appendChild(c);
+ setTimeout(()=>c.remove(),5000);
+}
+setInterval(createConfetti,100);
+
+// FLOATING HEARTS
+function createHeart(){
+ let h=document.createElement("div");
+ h.className="heart";
+ h.innerHTML=["❤️","💖","💕","💗","💝"][Math.floor(Math.random()*5)];
+ h.style.left=Math.random()*100+"vw";
+ h.style.fontSize=(Math.random()*25+18)+"px";
+ document.body.appendChild(h);
+ setTimeout(()=>h.remove(),8000);
+}
+setInterval(createHeart,700);
+
+// SURPRISE BUTTON
+function showSurprise(){
+ document.getElementById("surprise").style.display="block";
+ for(let j=0;j<100;j++){
+  setTimeout(createConfetti,j*15);
+ }
+ launchFirework();
+}
+
+// MUSIC
+const music=document.getElementById("music");
+
+async function toggleMusic(){
+ const btn=document.getElementById("musicBtn");
+ const status=document.getElementById("musicStatus");
+
+ if(music.paused){
+  try{
+   await music.play();
+   btn.textContent="⏸ Pause Music";
+   status.textContent="🎶 Music is playing!";
+  }catch(e){
+   status.textContent="Music unavailable. Check internet.";
+  }
+ }else{
+  music.pause();
+  btn.textContent="🎵 Play Music";
+  status.textContent="Music paused";
+ }
+}
+
+// FIREWORKS
+const canvas=document.getElementById("fireworks");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+ canvas.width=innerWidth;
+ canvas.height=innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+let particles=[];
+
+function launchFirework(){
+ let x=Math.random()*canvas.width;
+ let y=Math.random()*canvas.height*.65;
+
+ for(let j=0;j<60;j++){
+  let angle=Math.random()*Math.PI*2;
+  let speed=Math.random()*4+1;
+
+  particles.push({
+   x,y,
+   vx:Math.cos(angle)*speed,
+   vy:Math.sin(angle)*speed,
+   life:90,
+   color:colors[Math.floor(Math.random()*colors.length)]
+  });
+ }
+}
+
+function animate(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ for(let i=particles.length-1;i>=0;i--){
+  let p=particles[i];
+  p.x+=p.vx;
+  p.y+=p.vy;
+  p.vy+=.025;
+  p.life--;
+
+  ctx.globalAlpha=Math.max(0,p.life/90);
+  ctx.fillStyle=p.color;
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,3,0,Math.PI*2);
+  ctx.fill();
+
+  if(p.life<=0)particles.splice(i,1);
+ }
+
+ ctx.globalAlpha=1;
+ requestAnimationFrame(animate);
+}
+
+animate();
+setInterval(launchFirework,1800);
+
+</script>
+
+</body>
+</html>
